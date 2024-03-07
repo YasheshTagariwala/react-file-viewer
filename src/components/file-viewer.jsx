@@ -1,9 +1,9 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import "../styles/main.scss";
-import withFetching from "./fetch-wrapper";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import 'styles/main.scss';
+import withFetching from './fetch-wrapper';
 
 import {
   CsvViewer,
@@ -15,56 +15,48 @@ import {
   UnsupportedViewer,
   PhotoViewerWrapper,
   AudioViewer,
-} from "./drivers";
+} from './drivers';
 
 class FileViewer extends Component {
   constructor(props) {
     super(props);
+    this.uniqIdentifier = Math.floor(Math.random() * 100000);
     this.state = {
       loading: true,
     };
   }
 
-  componentDidMount() {
-    const container = document.getElementById("pg-viewer");
-    const height = container ? container.clientHeight : 0;
-    const width = container ? container.clientWidth : 0;
-    this.setState({ height, width });
-  }
-
-  getDriver() {
+  getDriver(commonProps) {
     switch (this.props.fileType) {
-      case "csv": {
-        return withFetching(CsvViewer, this.props);
+      case 'csv': {
+        return withFetching(CsvViewer, commonProps);
       }
-      case "xlsx": {
-        const newProps = Object.assign({}, this.props, {
-          responseType: "arraybuffer",
-        });
+      case 'xlsx': {
+        const newProps = Object.assign({}, commonProps, { responseType: 'arraybuffer' });
         return withFetching(XlsxViewer, newProps);
       }
-      case "jpg":
-      case "jpeg":
-      case "gif":
-      case "bmp":
-      case "png": {
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+      case 'bmp':
+      case 'png': {
         return PhotoViewerWrapper;
       }
-      case "pdf": {
+      case 'pdf': {
         return PDFViewer;
       }
-      case "docx": {
+      case 'docx': {
         return DocxViewer;
       }
-      case "wav":
-      case "mp3": {
+      case 'wav':
+      case 'mp3': {
         return AudioViewer;
       }
-      case "webm":
-      case "mp4": {
+      case 'webm':
+      case 'mp4': {
         return VideoViewer;
       }
-      case "wexbim": {
+      case 'wexbim': {
         return XBimViewer;
       }
       default: {
@@ -74,16 +66,15 @@ class FileViewer extends Component {
   }
 
   render() {
-    const Driver = this.getDriver(this.props);
-    console.error("Driver : %O", Driver);
+    const commonProps = Object.assign({}, this.props, { uniqIdentifier: this.uniqIdentifier });
+    const Driver = this.getDriver(commonProps);
+    const container = document.getElementById('pg-viewer');
+    const height = container ? container.clientHeight : 0;
+    const width = container ? container.clientWidth : 0;
     return (
       <div className="pg-viewer-wrapper">
         <div className="pg-viewer" id="pg-viewer">
-          <Driver
-            {...this.props}
-            width={this.state.width}
-            height={this.state.height}
-          />
+          <Driver {...commonProps} width={width} height={height} />
         </div>
       </div>
     );
@@ -105,3 +96,4 @@ FileViewer.defaultProps = {
 };
 
 export default FileViewer;
+module.exports = FileViewer;

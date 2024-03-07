@@ -1,16 +1,28 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
-import "../../styles/video.scss";
-import Loading from "../loading";
+import 'styles/video.scss';
+import Loading from '../loading';
 
 class AudioViewer extends Component {
   constructor(props) {
     super(props);
+    console.log('-', props);
     this.state = {
       loading: true,
     };
+    this.onCanPlay = this.onCanPlay.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.audio) {
+      this.audio.addEventListener('loadedmetadata', this.onCanPlay);
+    }
+  }
+
+  componentWillUnmount() {
+    this.audio.removeEventListener('loadedmetadata', this.onCanPlay);
   }
 
   onCanPlay() {
@@ -25,15 +37,16 @@ class AudioViewer extends Component {
   }
 
   render() {
-    const visibility = this.state.loading ? "hidden" : "visible";
+    const display = this.state.loading ? 'none' : 'block';
     return (
       <div className="pg-driver-view">
         <div className="video-container">
           {this.renderLoading()}
           <audio
-            style={{ visibility }}
+            style={{ display }}
             controls
-            onCanPlay={(e) => this.onCanPlay(e)}
+            ref={audio => this.audio = audio}
+            onCanPlay={e => this.onCanPlay(e)}
             src={this.props.filePath}
           >
             Video playback is not supported by your browser.
